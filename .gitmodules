@@ -1,0 +1,3 @@
+[submodule "transporter/static/js/MakiMarkers"]
+	path = transporter/static/js/MakiMarkers
+	url = git@github.com:jseppi/Leaflet.MakiMarkers.git
