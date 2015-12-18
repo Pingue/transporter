@@ -8,7 +8,9 @@
 <br/>
 {% endif %}
 {% endfor %}
-
+<button class="btn btn-lg btn-info" style="background: #ff44ff"><i class="fa fa-shopping-basket"></i> Shops</button>
+<button class="btn btn-lg btn-info"><i class="fa fa-subway"></i> Tube</button>
+<button class="btn btn-lg btn-danger"><i class="fa fa-bus"></i> Buses</button>
 Just here, I want massive buttons with icons that match the map icons, when you click them, you get a modal to choose which place to view. I sound like a client
 
 <div id="map" style="height=100%; height: calc(100% - 200px);"></div>
@@ -16,17 +18,24 @@ Just here, I want massive buttons with icons that match the map icons, when you 
 <script>
 var buses = [];
 var tubes = [];
-var busIcon=L.MakiMarkers.icon({icon: "rocket", color: "#b0b", size: "m"});
+var shops = [];
+
+var tubeMarker = L.AwesomeMarkers.icon({icon: 'subway',markerColor: 'red'});
+var busMarker = L.AwesomeMarkers.icon({icon: 'bus',markerColor: 'blue'});
+var shopMarker = L.AwesomeMarkers.icon({icon: 'shopping-basket',markerColor: 'purple'});
+
 {% for place in places.places %}
 	{% if place.placeType != "CensusOutputAreas" %}
-		{% if "tube" in place.modes %}
-			tubes.push(L.marker([ {{ place.lat }} , {{ place.lon }} ] ).bindPopup('{{ place.commonName }}'));
+		{% if place.placeType == "StopPoint" %}
+			{% if "tube" in place.modes %}
+				tubes.push(L.marker([ {{ place.lat }} , {{ place.lon }} ], {icon: tubeMarker} ).bindPopup('{{ place.commonName }}'));
+			{% endif %}
+			{% if "bus" in place.modes %}
+				buses.push(L.marker([ {{ place.lat }} , {{ place.lon }} ], {icon: busMarker}  ).bindPopup('{{ place.commonName }}'));
+			{% endif %}
 		{% endif %}
-		{% if "bus" in place.modes %}
-			buses.push(L.marker([ {{ place.lat }} , {{ place.lon }} ] ).bindPopup('{{ place.commonName }}'));
-//		buses.push(L.marker([ {{ place.lat }} , {{ place.lon }} ],{icon:busIcon} ).bindPopup('{{ place.commonName }}'));
-//		L.marker([ {{ place.lat }} , {{ place.lon }} ],{icon:busIcon} ).addTo(map);
-
+		{% if place.placeType == "OysterTicketShop" %}
+			shops.push(L.marker([ {{ place.lat }} , {{ place.lon }} ], {icon: shopMarker}  ).bindPopup('{{ place.commonName }}'));
 		{% endif %}
 	{% endif %}
 {% endfor %}
@@ -62,9 +71,10 @@ var Thunderforest_TransportDark = L.tileLayer('http://{s}.tile.thunderforest.com
 
 var busLayer = L.layerGroup(buses).addTo(map);
 var tubeLayer = L.layerGroup(tubes).addTo(map);
+var shopLayer = L.layerGroup(shops).addTo(map);
 
 var baseMaps = {"Default": standardLayer, "OSM": OpenStreetMap_Mapnik, "OSM_B&W": OpenStreetMap_BlackAndWhite, "OpenCycle": Thunderforest_OpenCycleMap, "Transport":Thunderforest_Transport, "Transport_Dark":Thunderforest_TransportDark};
-var overlayMaps = {"Buses": busLayer, "Tube": tubeLayer};
+var overlayMaps = {"Buses": busLayer, "Tube": tubeLayer, "Shops": shopLayer};
 
 L.control.layers(baseMaps, overlayMaps).addTo(map);
 
